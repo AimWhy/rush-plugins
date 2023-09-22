@@ -1,6 +1,6 @@
 {
   "name": "rush-init-project-plugin",
-  "version": "0.6.1",
+  "version": "0.9.0",
   "description": "Rush plugin for initialize project in monorepo",
   "keywords": [
     "rush",
@@ -9,14 +9,16 @@
     "init",
     "project"
   ],
-  "homepage": "https://github.com/bytesfriends/rush-plugins#readme",
+  "homepage": "https://github.com/bytemate/rush-plugins#readme",
   "repository": {
     "type": "git",
-    "url": "https://github.com/bytesfriends/rush-plugins",
+    "url": "https://github.com/bytemate/rush-plugins",
     "directory": "rush-plugins/rush-init-project-plugin"
   },
   "license": "MIT",
-  "author": "liucheng.leo",
+  "contributors": [
+    "Cheng Liu <chengcyber@outlook.com>"
+  ],
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "bin": {
@@ -31,6 +33,9 @@
   "dependencies": {
     "@rushstack/node-core-library": "3.44.1",
     "@rushstack/rush-sdk": "5.62.4",
+    "@types/inquirer-autocomplete-prompt": "~3.0.0",
+    "blessed": "~0.1.81",
+    "blessed-contrib": "~4.11.0",
     "chalk": "4.1.2",
     "commander": "~9.4.0",
     "handlebars-helpers": "~0.10.0",
@@ -50,6 +55,7 @@
     "@rushstack/heft": "0.43.2",
     "@rushstack/heft-jest-plugin": "~0.1.53",
     "@rushstack/heft-node-rig": "1.2.31",
+    "@types/blessed": "~0.1.19",
     "@types/ejs": "~3.1.1",
     "@types/heft-jest": "1.0.1",
     "@types/inquirer": "~8.1.3",

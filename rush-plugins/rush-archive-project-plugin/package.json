@@ -1,6 +1,6 @@
 {
   "name": "rush-archive-project-plugin",
-  "version": "1.1.4",
+  "version": "1.1.7",
   "description": "Rush plugin to archive project",
   "keywords": [
     "rush",
@@ -8,17 +8,19 @@
     "archive",
     "project"
   ],
-  "homepage": "https://github.com/bytesfriends/rush-plugins#readme",
+  "homepage": "https://github.com/bytemate/rush-plugins#readme",
   "bugs": {
-    "url": "https://github.com/bytesfriends/rush-plugins/issues"
+    "url": "https://github.com/bytemate/rush-plugins/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/bytesfriends/rush-plugins.git",
+    "url": "git+https://github.com/bytemate/rush-plugins.git",
     "directory": "rush-plugins/rush-archive-project-plugin"
   },
   "license": "MIT",
-  "author": "Cheng Liu<chengcyber@outlook.com",
+  "contributors": [
+    "Cheng Liu <chengcyber@outlook.com>"
+  ],
   "main": "lib/index.js",
   "bin": {
     "rush-project-archiver": "lib/cli.js"
@@ -33,6 +35,7 @@
     "@rushstack/node-core-library": "3.44.1",
     "@rushstack/rush-sdk": "5.62.4",
     "inquirer": "~8.2.0",
+    "json2md": "~2.0.0",
     "ora": "5.4.1",
     "tar": "~6.1.11",
     "yargs": "~17.3.0"
@@ -44,6 +47,7 @@
     "@rushstack/heft-node-rig": "1.2.31",
     "@types/heft-jest": "1.0.1",
     "@types/inquirer": "~8.1.3",
+    "@types/json2md": "~1.5.1",
     "@types/node": "12.20.24",
     "@types/pacote": "~11.1.1",
     "@types/tar": "~6.1.1",

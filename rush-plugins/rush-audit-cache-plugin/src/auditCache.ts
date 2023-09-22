@@ -1,30 +1,21 @@
-import path from "path";
+import path from 'path';
 
-import {
-  RushConfiguration,
-  RushConfigurationProject,
-} from "@rushstack/rush-sdk";
-import { Colors, FileSystem, ITerminal } from "@rushstack/node-core-library";
+import { RushConfiguration, RushConfigurationProject } from '@rushstack/rush-sdk';
+import { Colors, FileSystem, ITerminal } from '@rushstack/node-core-library';
 
-import { AUDIT_CACHE_FOLDER } from "./helpers/constants";
-import { TraceExecutorFactory } from "./core/TraceExecutor";
-import {
-  BaseTraceExecutor,
-  IBaseTraceExecutorOptions,
-  ITraceResult,
-} from "./core/base/BaseTraceExecutor";
-import { AuditCacheAnalyzer, IAnalyzeResult } from "./core/Analyzer";
-import {
-  getSortedAllDependencyProjects,
-  getAllCacheConfiguredProjects,
-} from "./helpers/rushProject";
+import { AUDIT_CACHE_FOLDER } from './helpers/constants';
+import { TraceExecutorFactory } from './core/TraceExecutor';
+import { BaseTraceExecutor, IBaseTraceExecutorOptions, ITraceResult } from './core/base/BaseTraceExecutor';
+import { AuditCacheAnalyzer, IAnalyzeResult } from './core/Analyzer';
+import { getAllCacheConfiguredProjects } from './helpers/rushProject';
 
 export interface IAuditCacheOptions {
-  projectName: string;
+  projectNames: string[];
   terminal: ITerminal;
   checkAllCacheConfiguredProject: boolean;
   exclude: string[];
   parallelism?: string;
+  phasedCommands: string[];
 }
 
 export interface IAuditCacheResult {
@@ -32,60 +23,49 @@ export interface IAuditCacheResult {
   analyzeResult: IAnalyzeResult;
 }
 
-export async function auditCache(
-  options: IAuditCacheOptions
-): Promise<IAuditCacheResult> {
-  const {
-    projectName,
-    terminal,
-    checkAllCacheConfiguredProject,
-    exclude,
-    parallelism,
-  } = options;
+export async function auditCache(options: IAuditCacheOptions): Promise<IAuditCacheResult> {
+  const { projectNames, terminal, checkAllCacheConfiguredProject, exclude, parallelism, phasedCommands } =
+    options;
 
   terminal.writeDebugLine(`exclude: ${exclude}`);
 
-  const rushConfiguration: RushConfiguration =
-    RushConfiguration.loadFromDefaultLocation();
-  terminal.writeVerboseLine("Rush configuration loaded");
+  const rushConfiguration: RushConfiguration = RushConfiguration.loadFromDefaultLocation();
+  terminal.writeVerboseLine('Rush configuration loaded');
 
   const auditCacheProjects: RushConfigurationProject[] = [];
 
   if (!checkAllCacheConfiguredProject) {
-    const project: RushConfigurationProject | undefined =
-      rushConfiguration.findProjectByShorthandName(projectName);
-    if (!project) {
-      throw new Error(`Project ${projectName} not found`);
+    const notExistProjects: string[] = [];
+    projectNames.forEach((projectName) => {
+      const rushConfigurationProject: RushConfigurationProject | undefined =
+        rushConfiguration.findProjectByShorthandName(projectName);
+      if (!rushConfigurationProject) {
+        notExistProjects.push(projectName);
+        return;
+      }
+      auditCacheProjects.push(rushConfigurationProject);
+      terminal.writeDebugLine(
+        `Audit cache projects ${auditCacheProjects.map(({ packageName }) => packageName).join(',')}`
+      );
+    });
+
+    if (notExistProjects.length) {
+      throw new Error(`Projects ${notExistProjects.join(',')} not found`);
     }
-    const allDependencyProjects: ReadonlyArray<RushConfigurationProject> =
-      getSortedAllDependencyProjects(project);
-    const allDependencyPackageNames: string[] = allDependencyProjects.map(
-      (p) => p.packageName
-    );
-    auditCacheProjects.push(...[project, ...allDependencyProjects]);
-    terminal.writeDebugLine(
-      `The dependencies of the project ${projectName} are ${allDependencyPackageNames
-        .filter((name) => name !== projectName)
-        .join(",")}`
-    );
   } else {
     const allCacheConfiguredProjects: RushConfigurationProject[] =
       getAllCacheConfiguredProjects(rushConfiguration);
     if (!allCacheConfiguredProjects.length) {
-      throw new Error("there is no cache configured project to audit");
+      throw new Error('there is no cache configured project to audit');
     }
-    const allNeedCacheAuditProjects: RushConfigurationProject[] =
-      allCacheConfiguredProjects.filter(
-        ({ packageName }) => !exclude.find((name) => name === packageName)
-      );
+    const allNeedCacheAuditProjects: RushConfigurationProject[] = allCacheConfiguredProjects.filter(
+      ({ packageName }) => !exclude.find((name) => name === packageName)
+    );
 
     auditCacheProjects.push(...allNeedCacheAuditProjects);
-    const allBuildCacheConfiguredProjects: string[] =
-      allNeedCacheAuditProjects.map((p) => p.packageName);
+    const allBuildCacheConfiguredProjects: string[] = allNeedCacheAuditProjects.map((p) => p.packageName);
     terminal.writeDebugLine(
-      `Find build cache configured projects ${allBuildCacheConfiguredProjects.join(
-        ","
-      )}`
+      `Find build cache configured projects ${allBuildCacheConfiguredProjects.join(',')}`
     );
   }
 
@@ -98,23 +78,23 @@ export async function auditCache(
     projects: auditCacheProjects,
     logFolder: auditCacheFolder,
     terminal,
-    parallelism,
+    parallelism
   };
-  const traceExecutor: BaseTraceExecutor =
-    TraceExecutorFactory.create(traceExecutorOptions);
+  const traceExecutor: BaseTraceExecutor = TraceExecutorFactory.create(traceExecutorOptions);
 
   const traceResult: ITraceResult = await traceExecutor.execAsync();
 
   const analyzer: AuditCacheAnalyzer = new AuditCacheAnalyzer({
     rushConfiguration,
+    phasedCommands
   });
 
-  terminal.writeLine("");
-  terminal.writeLine("Analyzing trace result...");
+  terminal.writeLine('');
+  terminal.writeLine('Analyzing trace result...');
 
   const analyzeResult: IAnalyzeResult = analyzer.analyze(traceResult);
 
-  const resultJsonFile: string = path.join(auditCacheFolder, "result.json");
+  const resultJsonFile: string = path.join(auditCacheFolder, 'result.json');
   FileSystem.writeFile(
     resultJsonFile,
     JSON.stringify(
@@ -138,8 +118,8 @@ export async function auditCache(
           ? ` and its dependencies ${auditCacheProjects
               .slice(1)
               .map(({ packageName }) => packageName)
-              .join(",")}`
-          : ""
+              .join(',')}`
+          : ''
       }`
     );
   }
@@ -152,25 +132,25 @@ export async function auditCache(
     terminal.writeLine(`======== project ${packageName} ========`);
 
     const { highRisk, lowRisk } = result;
-    terminal.write("It has ");
+    terminal.write('It has ');
     terminal.write(Colors.red(String(highRisk.length)));
-    terminal.write(" high risk issues and ");
+    terminal.write(' high risk issues and ');
     terminal.write(Colors.yellow(String(lowRisk.length)));
-    terminal.write(" low risk issues\n");
+    terminal.write(' low risk issues\n');
 
     if (highRisk.length > 0) {
-      terminal.writeLine(Colors.red("High risks are"));
+      terminal.writeLine(Colors.red('High risks are'));
       for (const risk of highRisk) {
         switch (risk.kind) {
-          case "readFile": {
+          case 'readFile': {
             terminal.writeLine(`Reads ${risk.filePath}`);
             break;
           }
-          case "writeFile": {
+          case 'writeFile': {
             terminal.writeLine(`Writes ${risk.filePath}`);
             break;
           }
-          case "text": {
+          case 'text': {
             terminal.writeLine(risk.content);
             break;
           }
@@ -187,50 +167,25 @@ export async function auditCache(
     Object.entries(analyzeResult).forEach(([packageName, result]) => {
       writeProjectAnalyzeResult({
         packageName,
-        result,
+        result
       });
     });
   } else {
-    const targetProjectAnalyzeResult: IAnalyzeResult["key"] =
-      analyzeResult[projectName];
+    for (const projectName of projectNames) {
+      const targetProjectAnalyzeResult: IAnalyzeResult['key'] = analyzeResult[projectName];
 
-    const otherAnalyzedProjects: string[] = Object.keys(analyzeResult).filter(
-      (name) => name !== projectName
-    );
-
-    writeProjectAnalyzeResult({
-      packageName: projectName,
-      result: targetProjectAnalyzeResult,
-    });
-
-    const highRiskProjects: string[] = [];
-    let totalOtherHighRisks: number = 0;
-    for (const packageName of otherAnalyzedProjects) {
-      const { highRisk } = analyzeResult[packageName];
-      if (highRisk.length > 0) {
-        highRiskProjects.push(packageName);
-        totalOtherHighRisks += highRisk.length;
-      }
-    }
-    terminal.writeLine("");
-    if (highRiskProjects.length === 0) {
-      terminal.writeLine(
-        `There is no high risk in dependencies of the project ${projectName}.`
-      );
-    } else {
-      terminal.writeLine(
-        `Find total ${totalOtherHighRisks} high risk in the dependencies of the project ${projectName}, include ${highRiskProjects.join(
-          ","
-        )}.`
-      );
+      writeProjectAnalyzeResult({
+        packageName: projectName,
+        result: targetProjectAnalyzeResult
+      });
     }
   }
 
-  terminal.writeLine("");
+  terminal.writeLine('');
   terminal.writeLine(`For more details, you can check ${resultJsonFile}`);
 
   return {
     traceResult,
-    analyzeResult,
+    analyzeResult
   };
 }

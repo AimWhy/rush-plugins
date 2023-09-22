@@ -11,7 +11,7 @@
   ],
   "parameters": [
     {
-      "parameterKind": "string",
+      "parameterKind": "stringList",
       "description": "The package name of the project",
       "longName": "--project",
       "shortName": "-p",
@@ -33,6 +33,15 @@
       "longName": "--exclude",
       "shortName": "-e",
       "argumentName": "EXCLUDE_PACKAGE_NAME",
+      "associatedCommands": ["audit-cache"],
+      "required": false
+    },
+    {
+      "parameterKind": "stringList",
+      "description": "Phased commands need to be audit",
+      "longName": "--phased-commands",
+      "shortName": "-P",
+      "argumentName": "PHASED_COMMANDS_NAMES",
       "associatedCommands": ["audit-cache"],
       "required": false
     },

@@ -1,6 +1,6 @@
 {
   "name": "rush-audit-cache-plugin",
-  "version": "0.1.10",
+  "version": "0.2.3",
   "description": "A diagnostic tool for rush build cache",
   "keywords": [
     "rush",
@@ -9,14 +9,16 @@
     "build",
     "cache"
   ],
-  "homepage": "https://github.com/bytesfriends/rush-plugins#readme",
+  "homepage": "https://github.com/bytemate/rush-plugins#readme",
   "repository": {
     "type": "git",
-    "url": "https://github.com/bytesfriends/rush-plugins",
+    "url": "https://github.com/bytemate/rush-plugins",
     "directory": "rush-plugins/rush-audit-cache-plugin"
   },
   "license": "MIT",
-  "author": "heyunfeng",
+  "contributors": [
+    "heyunfeng"
+  ],
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "scripts": {

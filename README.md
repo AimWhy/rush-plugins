@@ -1,4 +1,8 @@
-This monorepo hosts unofficial rush plugins created and used inside ByteDance.
+❗❗️❗️    
+# RELOCATED
+The current repository has been migrated to the [TikTok repository](https://github.com/tiktok/rush-plugins)    
+❗️❗️❗️
+
 
 # rush-init-project-plugin
 
@@ -56,3 +60,11 @@ Are you finding alternative to `husky` in your monorepo? Rush takes care of Git 
 Use of rush build cache is a great way to speed up your build. But, how to know if the configuration for cache is working as expected? This plugin is for you!
 
 [More](./rush-plugins/rush-audit-cache-plugin/README.md)
+
+# rush-git-lfs-plugin
+
+[![npm](https://img.shields.io/npm/dt/rush-git-lfs-plugin.svg?style=flat-square)](https://www.npmjs.com/package/rush-git-lfs-plugin)
+
+Git LFS was commonly used to managed large files/binary files in your git repository. This plugin can help you to check if newly added files are correctly managed by Git LFS and prevent users from wrongly commit their local large files.
+
+[More](./rush-plugins/rush-git-lfs-plugin/README.md)

@@ -5,17 +5,22 @@ import type {
 import { FileSystem, JsonFile, JsonObject } from "@rushstack/node-core-library";
 import * as path from "path";
 import * as tar from "tar";
-import { gitCheckIgnored, gitFullClean } from "../logic/git";
+import { getCheckpointBranch, gitCheckIgnored, gitFullClean, pushGitBranch } from "../logic/git";
 import { getGraveyardInfo } from "../logic/graveyard";
-import { ProjectMetadata } from "../logic/projectMetadata";
+import { IProjectCheckpointMetadata, ProjectMetadata } from "../logic/projectMetadata";
 import ora from "ora";
+import inquirer from 'inquirer';
+import fs from 'fs';
 import { loadRushConfiguration } from "../logic/rushConfiguration";
+import { convertProjectMetadataToMD } from "../logic/generateMD";
 
 interface IArchiveConfig {
   packageName: string;
+  gitCheckpoint: boolean;
+  shouldPushGitCheckpoint?: boolean;
 }
 
-export async function archive({ packageName }: IArchiveConfig): Promise<void> {
+export async function archive({ packageName, gitCheckpoint, shouldPushGitCheckpoint }: IArchiveConfig): Promise<void> {
   let spinner: ora.Ora | undefined;
   const rushConfiguration: RushConfiguration = loadRushConfiguration();
   const monoRoot: string = rushConfiguration.rushJsonFolder;
@@ -43,6 +48,55 @@ ${consumingProjectNames.join(", ")}`);
   gitFullClean(projectFolder);
   spinner.succeed(`Clean ${projectRelativeFolder} complete`);
 
+  const { graveyardRelativeFolder, tarballRelativeFolder, tarballFolder, tarballName } =
+    getGraveyardInfo({
+      monoRoot,
+      packageName,
+    });
+  FileSystem.ensureFolder(tarballFolder);
+
+  if (gitCheckpoint) {
+    spinner = ora('Attempting to create a git checkpoint branch');
+    const branchName: string = getCheckpointBranch(rushConfiguration.rushJsonFolder,packageName);
+    spinner.succeed(`Git Checkpoint created at branch: ${branchName}`);
+    let shouldPushBranch: boolean;
+    if (shouldPushGitCheckpoint === undefined) {
+      // Prompt user to push the newly created branch
+      const { pushBranch } = await inquirer.prompt([
+        { type: 'confirm', name: 'pushBranch', message: 'Push checkpoint branch to remote?' }
+      ])
+      shouldPushBranch = pushBranch;
+    } else {
+      shouldPushBranch = shouldPushGitCheckpoint;
+    }
+
+    if (shouldPushBranch) {
+      pushGitBranch(rushConfiguration.rushJsonFolder, branchName);
+    }
+    // Add data to metadata file
+    const archivedProjectMetadataFilePath: string = path.join(monoRoot, graveyardRelativeFolder, 'projectCheckpoints.json');
+    const archivedProjectMetadataMdFilePath: string = path.join(monoRoot, graveyardRelativeFolder, 'projectCheckpoints.md');
+    let archivedProjectMetadataObject: { [key in string]: IProjectCheckpointMetadata } = {};
+    if (FileSystem.exists(archivedProjectMetadataFilePath)) {
+      archivedProjectMetadataObject = JsonFile.load(archivedProjectMetadataFilePath);
+    }
+    // Try to pull a description from the package's package.json file
+    let description: string = "";
+    const projectJson: string = `${project.projectFolder}/package.json`;
+    if (FileSystem.exists(projectJson)) {
+      const packageJson: any = JsonFile.load(`${project.projectFolder}/package.json`);
+      description = packageJson.description || "";
+    }
+    archivedProjectMetadataObject[packageName] = {
+      checkpointBranch: branchName,
+      archivedOn: new Date().toISOString(),
+      description
+    }
+    JsonFile.save(archivedProjectMetadataObject, archivedProjectMetadataFilePath);
+
+    fs.writeFileSync(archivedProjectMetadataMdFilePath, convertProjectMetadataToMD(archivedProjectMetadataObject));
+  }
+
   // create a metadata.json file
   spinner = ora(`Creating metadata.json for ${projectRelativeFolder}`).start();
   const rawRushJson: JsonObject = JsonFile.load(rushConfiguration.rushJsonFile);
@@ -52,6 +106,7 @@ ${consumingProjectNames.join(", ")}`);
   const projectMetadata: ProjectMetadata = new ProjectMetadata(
     rawProjectConfig
   );
+
   const projectMetadataFilepath: string = path.join(
     projectFolder,
     ProjectMetadata.FILENAME
@@ -61,12 +116,6 @@ ${consumingProjectNames.join(", ")}`);
 
   // create archive tarball
   spinner = ora(`Creating tarball for ${projectRelativeFolder}`).start();
-  const { tarballRelativeFolder, tarballFolder, tarballName } =
-    getGraveyardInfo({
-      monoRoot,
-      packageName,
-    });
-  FileSystem.ensureFolder(tarballFolder);
   try {
     //tar -czf test.tar.gz -C project_relative_folder .
     tar.create(

@@ -3,10 +3,12 @@ import { FileSystem, JsonFile, JsonObject } from "@rushstack/node-core-library";
 import ora from "ora";
 import { getGraveyardInfo } from "../logic/graveyard";
 import * as tar from "tar";
-import { ProjectMetadata } from "../logic/projectMetadata";
+import fs from 'fs';
+import { IProjectCheckpointMetadata, ProjectMetadata } from "../logic/projectMetadata";
 import { loadRushConfiguration } from "../logic/rushConfiguration";
 
 import type { RushConfiguration } from "@rushstack/rush-sdk";
+import { convertProjectMetadataToMD } from "../logic/generateMD";
 
 export interface IUnarchiveConfig {
   packageName: string;
@@ -26,7 +28,7 @@ export async function unarchive({
   const monoRoot: string = rushConfiguration.rushJsonFolder;
 
   // extract tarball
-  const { tarballName, tarballFolder } = getGraveyardInfo({
+  const { graveyardRelativeFolder, tarballName, tarballFolder } = getGraveyardInfo({
     monoRoot,
     packageName,
   });
@@ -49,6 +51,16 @@ export async function unarchive({
     cwd: extractWorkingFolder,
   });
   spinner.succeed();
+
+  // Remove checkpoint metadata from file
+  const archivedProjectMetadataFilePath: string = path.join(monoRoot, graveyardRelativeFolder, 'projectCheckpoints.json');
+  const archivedProjectMetadataMdFilePath: string = path.join(monoRoot, graveyardRelativeFolder, 'projectCheckpoints.md');
+  if (FileSystem.exists(archivedProjectMetadataFilePath)) {
+    const metadataCheckpoints: { [key in string]: IProjectCheckpointMetadata } = JsonFile.load(archivedProjectMetadataFilePath);
+    delete metadataCheckpoints[packageName];
+    JsonFile.save(metadataCheckpoints, archivedProjectMetadataFilePath);
+    fs.writeFileSync(archivedProjectMetadataMdFilePath, convertProjectMetadataToMD(metadataCheckpoints));
+  }
 
   // read metadata
   const projectMetadata: ProjectMetadata = ProjectMetadata.load(

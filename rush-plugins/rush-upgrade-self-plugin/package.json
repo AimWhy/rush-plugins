@@ -7,17 +7,19 @@
     "plugin",
     "upgrade"
   ],
-  "homepage": "https://github.com/bytesfriends/rush-plugins#readme",
+  "homepage": "https://github.com/bytemate/rush-plugins#readme",
   "bugs": {
-    "url": "https://github.com/bytesfriends/rush-plugins/issues"
+    "url": "https://github.com/bytemate/rush-plugins/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/bytesfriends/rush-plugins.git",
+    "url": "git+https://github.com/bytemate/rush-plugins.git",
     "directory": "rush-plugins/rush-upgrade-self-plugin"
   },
   "license": "MIT",
-  "author": "Cheng Liu<chengcyber@outlook.com>",
+  "contributors": [
+    "Cheng Liu <chengcyber@outlook.com>"
+  ],
   "main": "lib/index.js",
   "bin": {
     "rush-upgrade-self": "lib/cli.js"

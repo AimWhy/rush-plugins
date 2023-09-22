@@ -1,6 +1,55 @@
 # Change Log - rush-init-project-plugin
 
-This log was last generated on Wed, 07 Dec 2022 09:05:36 GMT and should not be manually modified.
+This log was last generated on Mon, 20 Mar 2023 07:15:13 GMT and should not be manually modified.
+
+## 0.9.0
+Mon, 20 Mar 2023 07:15:13 GMT
+
+### Minor changes
+
+- add global plugin
+
+## 0.8.2
+Thu, 16 Mar 2023 12:08:26 GMT
+
+### Patches
+
+- fix in -a mode answers are not complete
+
+## 0.8.1
+Thu, 16 Mar 2023 08:30:30 GMT
+
+### Patches
+
+- remove duplicate loadTemplateConfiguration
+
+## 0.8.0
+Mon, 13 Mar 2023 09:45:27 GMT
+
+### Minor changes
+
+- add template schema to manage templates and add assign unscopedPackageName after inquery
+
+## 0.7.2
+Tue, 28 Feb 2023 08:06:50 GMT
+
+### Patches
+
+- remove filter prompts in rush init-project
+
+## 0.7.1
+Thu, 02 Feb 2023 11:25:18 GMT
+
+### Patches
+
+- fix ui comfirm
+
+## 0.7.0
+Wed, 01 Feb 2023 09:06:22 GMT
+
+### Minor changes
+
+- add ui option in cli
 
 ## 0.6.1
 Wed, 07 Dec 2022 09:05:36 GMT

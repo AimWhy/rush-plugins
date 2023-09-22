@@ -1,6 +1,34 @@
 # Change Log - rush-audit-cache-plugin
 
-This log was last generated on Mon, 12 Dec 2022 02:58:12 GMT and should not be manually modified.
+This log was last generated on Wed, 23 Aug 2023 05:01:48 GMT and should not be manually modified.
+
+## 0.2.3
+Wed, 23 Aug 2023 05:01:48 GMT
+
+### Patches
+
+- rush-audit-cache-plugin support dependsOnAdditionalFiles
+
+## 0.2.2
+Mon, 05 Jun 2023 04:43:06 GMT
+
+### Patches
+
+- build cache audit tool support phased command
+
+## 0.2.1
+Wed, 01 Mar 2023 04:51:48 GMT
+
+### Patches
+
+- audit cache if select project, will not audit dependencies projects
+
+## 0.2.0
+Tue, 28 Feb 2023 08:06:50 GMT
+
+### Minor changes
+
+- rush audit cache plugin support multiple projects
 
 ## 0.1.10
 Mon, 12 Dec 2022 02:58:12 GMT

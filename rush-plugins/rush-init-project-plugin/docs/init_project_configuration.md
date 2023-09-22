@@ -1,3 +1,26 @@
+# Configuration to manage templates
+You can create a configuration file called `template.json` with your templates.
+
+For instance,
+
+```
+common/_templates
+├── rush-plugin-for-command
+└── template.json
+```
+
+For `template.json`
+```
+{
+  "templates": [
+    {
+      "displayName": "command template",
+      "templateFolder": "rush-plugin-for-command", // relative to template.json
+    }
+  ],
+  "globalPluginEntryPoint": "_globalPlugin/index.ts" // a global plugin
+}
+```
 # Configuration for initialize project
 
 You can create a configuration file called `init.config.js` or `init.config.ts` under your template folder.
@@ -238,6 +261,22 @@ Plugin hooks Workflow:
 ```
 ┌─────────────────────────────┐
 │                             │
+│ Load Global Configuration   │
+│ `globalPluginEntryPoint`    │
+│  in `template.json`         │
+│                             │
+└──────────────┬──────────────┘
+               │
+┌──────────────▼───────────────┐
+│ Apply global plugin          │
+└──────────────┬───────────────┘
+               │
+┌──────────────▼─────────────────────────┐
+│ hooks.templates.promise({ templates }) │
+└──────────────┬─────────────────────────┘
+               │
+┌──────────────▼──────────────┐
+│                             │
 │ prompt to select a template │
 │                             │
 └──────────────┬──────────────┘
@@ -290,6 +329,16 @@ Plugin hooks Workflow:
 │ hooks.done.promise(result, answers) │
 └─────────────────────────────────────┘
 ```
+
+### templates
+
+- AsyncSeriesHook
+- params: `ITemplatesHook`
+  - { templates: ITemplatePathNameType[] }
+
+`templates` is internal templates list, and templates will show in choosing a template step.
+
+It only works in global plugin, and mutate the `templates` you can manage templates locally.
 
 ### prompts
 
@@ -473,7 +522,7 @@ export class MyDataPlugin implements IPlugin {
   public static readonly pluginName: string = 'MyDataPlugin';
   apply(hooks: IHooks): void {
     hooks.answers.tap(MyDataPlugin.pluginName, (answers) => {
-      // mutate answers here 
+      // mutate answers here
       answers.foo = 'foo';
       answers.bar = 'bar';
     });

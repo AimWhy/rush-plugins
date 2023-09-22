@@ -16,7 +16,7 @@
    * path segment in the "$schema" field for all your Rush config files.  This will ensure
    * correct error-underlining and tab-completion for editors such as VS Code.
    */
-  "rushVersion": "5.57.1",
+  "rushVersion": "5.83.2",
 
   /**
    * The next field selects which package manager should be installed and determines its version.
@@ -283,7 +283,7 @@
      * your PR branch, and in this situation "rush change" will also automatically invoke "git fetch"
      * to retrieve the latest activity for the remote master branch.
      */
-    "url": "https://github.com/bytesfriends/rush-plugins",
+    "url": "https://github.com/bytemate/rush-plugins",
     /**
      * The default branch name. This tells "rush change" which remote branch to compare against.
      * The default value is "master"
@@ -490,6 +490,11 @@
     {
       "packageName": "rush-audit-cache-plugin",
       "projectFolder": "rush-plugins/rush-audit-cache-plugin",
+      "shouldPublish": true
+    },
+    {
+      "packageName": "rush-git-lfs-plugin",
+      "projectFolder": "rush-plugins/rush-git-lfs-plugin",
       "shouldPublish": true
     }
   ]
